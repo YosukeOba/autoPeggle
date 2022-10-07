@@ -7,11 +7,12 @@ import java.awt.Robot.*;
 Robot robot;
 Color c;
 
-Boolean [] pegs = new Boolean [25];
+Boolean [] pegs = new Boolean [96];
 
-int [] pegsCoordinateY = {540, 528, 515, 501, 487, 474, 460, 445, 433, 421, 403, 391, 377, 364, 352, 333, 320, 306, 294, 278, 265, 254, 238, 224, 213};
+int [] pegsCoordinateX = {208, 190, 208, 190, 208, 190, 208, 186};
+int [] pegsCoordinateY = {247, 283, 319, 355, 391, 427, 463, 498};
 
-int [] trial = new int [2];
+int [] trial = new int [5];
 
 int [] bestTrial = new int [10];
 
@@ -26,11 +27,14 @@ int lastStartTime = 0;
 int waitTime = 30000;
 
 //input the X coordinate of Peggle window's left-upper.
-int windowX = 1118;
+int windowX = 1112;
+int windowY = 4;
 
 void setup() {
+  
+  delay(3000);
 
-  size(400, 1000);
+  size(600, 1000);
 
   try {
     robot = new Robot();
@@ -62,32 +66,43 @@ void draw() {
   int sx = (int)pi.getLocation().getX();
   int sy = (int)pi.getLocation().getY();
 
-  println(sx + "," + sy);
-  println(robot.getPixelColor(1562, 291).getBlue());
+  //println(sx + "," + sy);
+  //println(robot.getPixelColor(1562, 291).getBlue());
 
   fill(0);
 
   for (int i = 0; i < pegsCoordinateY.length; i++) {
-    c = robot.getPixelColor(windowX+779, pegsCoordinateY[i]);
-    text(c.getRed(), 0, 30 * i + 30);
+    for (int j = 0; j < 12; j++) {
+      c = robot.getPixelColor(windowX+pegsCoordinateX[i]+36*j, windowY+pegsCoordinateY[i]);
+      if (c.getRed() > 220 && c.getBlue() < 200) {
+            fill(255,0,0);
+          } else if (c.getBlue() > 220 && c.getRed() < 200){
+            fill(0,0,255);
+          } else {
+            fill(0);
+          }
+      text(c.getRed() + ",\n" + c.getBlue(), 0 + 30 * j, 40 * i + 30);
+    }
   }
+  
+  fill(0);
 
-  text("start="+str(start), 50, 30);
+  text("start="+str(start), 50, 380);
 
-  text("ball="+str(ball), 50, 60);
+  text("ball="+str(ball), 50, 410);
 
-  text("trials="+str(trials), 50, 90);
+  text("trials="+str(trials), 50, 440);
 
-  text("lastST="+str(lastStartTime), 50, 120);
+  text("lastST="+str(lastStartTime), 50, 470);
 
-  text("millis="+millis(), 50, 150);
+  text("millis="+millis(), 50, 500);
 
   for (int i = 0; i < trial.length; i++) {
-    text("trial["+i+"]="+str(trial[i]), 150, 30*i+30);
+    text("trial["+i+"]="+str(trial[i]), 380, 30*i+30);
   }
 
   for (int i = 0; i < bestTrial.length; i++) {
-    text("bestTrial["+i+"]="+str(bestTrial[i]), 230, 30*i+30);
+    text("bestTrial["+i+"]="+str(bestTrial[i]), 450, 30*i+30);
   }
 
 
@@ -113,7 +128,7 @@ void draw() {
       delay(100);
       robot.keyRelease(ENTER);
       delay(100);
-      
+
       //robot.keyPress(UP);
       //delay(5000);
       //robot.keyRelease(UP);
@@ -125,7 +140,7 @@ void draw() {
       //  }
       //}
       //end = false;
-      
+
       delay(waitTime);
     }
 
@@ -142,18 +157,19 @@ void draw() {
     robot.keyPress(ENTER);
     delay(100);
     robot.keyRelease(ENTER);
-    
+
     //robot.keyPress(UP);
     //  delay(5000);
     //  robot.keyRelease(UP);
     //  delay(100);
-      
-     //while(end==false){
-     //   if(robot.getPixelColor(1562, 291).getBlue() > 100){
-     //     end = true;
-     //   }
-     // }
 
+    //while(end==false){
+    //   if(robot.getPixelColor(1562, 291).getBlue() > 100){
+    //     end = true;
+    //   }
+    // }
+
+    println("check");
     start = false;
   } else {
 
@@ -162,17 +178,27 @@ void draw() {
       //  end = false;
 
       for (int i = 0; i < pegs.length; i++) {
-        pegs[i] = false;
+        pegs[i] = true;
       }
 
       for (int i = 0; i < pegsCoordinateY.length; i++) {
-        c = robot.getPixelColor(windowX+779, pegsCoordinateY[i]);
-        text(c.getRed(), 0, 30 * i + 30);
-        if (c.getRed() > 200) {
-          pegs[i] = true;
+        for (int j = 0; j < 12; j++) {
+          c = robot.getPixelColor(windowX+pegsCoordinateX[i]+36*j, windowY+pegsCoordinateY[i]);
+
+          if (c.getRed() > 220 && c.getBlue() < 200) {
+            pegs[i*12+j] = false;
+            fill(255,0,0);
+          } else if (c.getBlue() > 220 && c.getRed() < 200){
+            pegs[i*12+j] = false;
+            fill(0,0,255);
+          } else {
+            pegs[i*12+j] = true;
+            fill(0);
+          }
+          text(c.getRed() + ",\n" + c.getBlue(), 0 + 30 * j, 40 * i + 30);
         }
       }
-
+      
       int count = 0;
 
       for (int i = 0; i < pegs.length; i++) {
@@ -199,7 +225,7 @@ void draw() {
 
         bestTrial[ball] = maxTrial;
         ball++;
-        if(ball >= 10){
+        if (ball >= 10) {
           exit();
         }
         trials=0;
